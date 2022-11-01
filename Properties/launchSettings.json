@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "WSL": {
+      "commandName": "WSL2",
+      "distributionName": ""
+    },
+    "Show Help": {
+      "commandName": "Project",
+      "commandLineArgs": "-h"
+    }
+  }
+}
