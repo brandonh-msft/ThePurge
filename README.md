@@ -4,10 +4,9 @@ Sometimes our best ideas come back to bite us. In some cases that's our wallet.
 Have you been collecting data from a service for a long time, but maybe forgot to turn off the collection, then you get a huge bill for your storage account? This tool is here to help.
 
 ## Getting started
-1. **Required**: .NET 6.0 SDK
+1. **Required**: [.NET 6.0 **SDK**](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
 1. Clone the repo
-1. Run `dotnet build -c release`
-1. Explore the tool with `.\bin\Release\net6.0\BlobPurge.exe -h`
+1. Explore the tool with `dotnet blobpurge -h`
 
 ```
 Usage - BlobPurge <AccountName> <ContainerName> -options
