@@ -1,10 +1,44 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>False</GenerateDocumentationFile>
+    <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+    <Title>Azure Storage Blob Purge tool</Title>
+    <VersionPrefix>0.1.0</VersionPrefix>
+    <Version>$(VersionPrefix)-alpha</Version>
+    <Copyright>2022</Copyright>
+    <PackageProjectUrl>https://github.com/brandonh-msft/ThePurge</PackageProjectUrl>
+    <PackageIcon>appicon.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/brandonh-msft/ThePurge</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>azure-storage</PackageTags>
+    <PackAsTool>True</PackAsTool>
+    <ToolCommandName>blobpurge</ToolCommandName>
+    <PackageOutputPath>./nupkg</PackageOutputPath>
+    <AssemblyVersion>$(VersionPrefix)</AssemblyVersion>
+    <FileVersion>$(VersionPrefix)</FileVersion>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <NeutralLanguage>en</NeutralLanguage>
+    <PackageReleaseNotes>Initial release</PackageReleaseNotes>
+    <Description>A tool for purging Azure Blob storage of blobs matching a prefix and/or older then a specified date</Description>
+    <Authors>brandonh-msft</Authors>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>embedded</DebugType>
+    <WarningLevel>7</WarningLevel>
+    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>embedded</DebugType>
+    <WarningLevel>7</WarningLevel>
+    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,6 +46,21 @@
     <PackageReference Include="Azure.ResourceManager.Storage" Version="1.0.0" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.14.0" />
     <PackageReference Include="PowerArgs" Version="3.6.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appicon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Update="LICENSE.txt">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Update="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
