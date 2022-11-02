@@ -42,6 +42,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="nupkg\**" />
+    <EmbeddedResource Remove="nupkg\**" />
+    <None Remove="nupkg\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Azure.Identity" Version="1.7.0" />
     <PackageReference Include="Azure.ResourceManager.Storage" Version="1.0.0" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.14.0" />
