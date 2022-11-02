@@ -1,4 +1,5 @@
 ﻿// See https://aka.ms/new-console-template for more information
+using Azure;
 using Azure.Identity;
 using Azure.ResourceManager.Storage;
 using Azure.Storage;
@@ -6,6 +7,8 @@ using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 
 using BlobPurge;
+
+using System.Net;
 
 var cts = new CancellationTokenSource();
 
@@ -65,28 +68,32 @@ Write("Getting blobs to purge...");
 
 await foreach (Azure.Page<BlobItem> p in blobs.AsPages(pageSizeHint: input.ChunkSize))
 {
-    if (!cts.IsCancellationRequested)
+    try
     {
-        var deleteTasks = new List<Task>(p.Values.Count);
-        Write($"Deleting {p.Values.Count} blob(s)...");
-        foreach (BlobItem? b in p.Values)
+        if (!cts.IsCancellationRequested)
         {
-            if (!cts.IsCancellationRequested && !b.Deleted)
+            var deleteTasks = new List<Task>(p.Values.Count);
+            Write($"Deleting {p.Values.Count} blob(s)...");
+            foreach (BlobItem? b in p.Values)
             {
-                if (!checkDays || (DateTimeOffset.UtcNow - b.Properties.CreatedOn.GetValueOrDefault(DateTimeOffset.UtcNow)).TotalDays > maxAgeDays)
+                if (!cts.IsCancellationRequested && !b.Deleted)
                 {
-                    WriteVerbose($"Signaling delete for {b.Name} ...");
-                    if (!input.WhatIf)
+                    if (!checkDays || (DateTimeOffset.UtcNow - b.Properties.CreatedOn.GetValueOrDefault(DateTimeOffset.UtcNow)).TotalDays > maxAgeDays)
                     {
-                        deleteTasks.Add(container.DeleteBlobAsync(b.Name, DeleteSnapshotsOption.IncludeSnapshots, cancellationToken: cts.Token));
+                        WriteVerbose($"Signaling delete for {b.Name} ...");
+                        if (!input.WhatIf)
+                        {
+                            deleteTasks.Add(container.DeleteBlobAsync(b.Name, DeleteSnapshotsOption.IncludeSnapshots, cancellationToken: cts.Token));
+                        }
                     }
                 }
             }
-        }
 
-        WriteVerbose($"Waiting for {deleteTasks.Count} deletion(s) to complete...");
-        await Task.WhenAll(deleteTasks);
+            WriteVerbose($"Waiting for {deleteTasks.Count} deletion(s) to complete...");
+            await Task.WhenAll(deleteTasks);
+        }
     }
+    catch (RequestFailedException e) when (e.Status == (int)HttpStatusCode.NotFound) { }
 }
 
 void Write(string message)
