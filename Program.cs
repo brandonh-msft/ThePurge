@@ -78,13 +78,42 @@ await foreach (Azure.Page<BlobItem> p in blobs.AsPages(pageSizeHint: input.Chunk
             {
                 if (!cts.IsCancellationRequested && !b.Deleted)
                 {
-                    if (!checkDays || (DateTimeOffset.UtcNow - b.Properties.CreatedOn.GetValueOrDefault(DateTimeOffset.UtcNow)).TotalDays > maxAgeDays)
+                    DateTimeOffset dateToCheck = DateTimeOffset.UtcNow;
+                    if (checkDays)
                     {
-                        WriteVerbose($"Signaling delete for {b.Name} ...");
+                        dateToCheck = b.Properties.LastModified ?? b.Properties.CreatedOn.GetValueOrDefault(DateTimeOffset.UtcNow);
+                    }
+
+                    if (!checkDays || (DateTimeOffset.UtcNow - dateToCheck).TotalDays > maxAgeDays)
+                    {
+                        WriteVerboseFunc(() =>
+                        {
+                            var msg = $"Signaling delete for {b.Name}";
+                            if (checkDays)
+                            {
+                                msg += $@" ({b.Properties.CreatedOn})";
+                            }
+
+                            return $@"{msg} ...";
+                        });
+
                         if (!input.WhatIf)
                         {
                             deleteTasks.Add(container.DeleteBlobAsync(b.Name, DeleteSnapshotsOption.IncludeSnapshots, cancellationToken: cts.Token));
                         }
+                    }
+                    else
+                    {
+                        WriteVerboseFunc(() =>
+                        {
+                            var msg = $"SKIPPED {b.Name}";
+                            if (checkDays)
+                            {
+                                msg += $@" ({b.Properties.CreatedOn})";
+                            }
+
+                            return $@"{msg} ...";
+                        });
                     }
                 }
             }
@@ -104,6 +133,14 @@ void Write(string message)
     }
 
     Console.WriteLine(message);
+}
+
+void WriteVerboseFunc(Func<string> messageFactory)
+{
+    if (input.Verbose)
+    {
+        WriteVerbose(messageFactory());
+    }
 }
 
 void WriteVerbose(string message)
