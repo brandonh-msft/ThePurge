@@ -1,8 +1,8 @@
 ﻿using PowerArgs;
 
-namespace BlobPurge
+namespace Purge.Common
 {
-    internal class GreaterThanZeroValidator : ArgValidator
+    public class GreaterThanZeroValidator : ArgValidator
     {
         public override void Validate(string name, ref string arg)
         {

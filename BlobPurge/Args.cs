@@ -1,5 +1,7 @@
 ﻿using PowerArgs;
 
+using Purge.Common;
+
 namespace BlobPurge
 {
     [TabCompletion]
