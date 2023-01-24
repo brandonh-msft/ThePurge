@@ -37,23 +37,7 @@ retryOptions.Retry.Delay = TimeSpan.FromSeconds(3);
 WriteVerbose("Connecting to container...");
 DateTimeOffset expiryTime = DateTimeOffset.UtcNow.AddDays(1);
 
-// To get AccountKeys so we have full access to the storage account, we have to go thru the management APIs
-var azureCreds = new DefaultAzureCredential(includeInteractiveCredentials: true);
-var armClient = new Azure.ResourceManager.ArmClient(azureCreds);
-Azure.ResourceManager.Resources.SubscriptionResource subscription = string.IsNullOrWhiteSpace(input.SubscriptionId) ? armClient.GetDefaultSubscription() : armClient.GetSubscriptions().Single(s => s.Data.SubscriptionId == input.SubscriptionId);
-
-StorageAccountResource? rmStorageAccount = subscription.GetStorageAccounts().SingleOrDefault(a => a.Data.Name.Equals(input.AccountName, StringComparison.OrdinalIgnoreCase));
-if (rmStorageAccount is null)
-{
-    WriteError($@"Could not find storage account '{input.AccountName}' in subscription '{subscription.Data.SubscriptionId}'. Check:
-  - The storage account name is correct
-  - The storage account exists in the subscription (specify different Subscription Id with -s)
-  - You have access to the storage account");
-    return;
-}
-
-var accountKey = rmStorageAccount.GetKeys().First().Value;
-var container = new BlobContainerClient(new Uri($"https://{input.AccountName}.blob.core.windows.net/{input.ContainerName}"), new StorageSharedKeyCredential(input.AccountName, accountKey), retryOptions);
+var container = new BlobContainerClient(new Uri($"https://{input.AccountName}.blob.core.windows.net/{input.ContainerName}"), new DefaultAzureCredential(true), retryOptions);
 Azure.AsyncPageable<BlobItem> blobs = container.GetBlobsAsync(BlobTraits.Metadata, BlobStates.None, input.Prefix, cts.Token);
 
 if (!input.Confirm)
